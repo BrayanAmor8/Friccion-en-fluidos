@@ -21,6 +21,7 @@ datos_se = pd.read_excel(r"C:\Users\braya\Documents\Brayan\Introducción a la f�
 Vi = 0
 g  = 9.78
 h  = 2
+m = 0.0007
 Tmax = math.sqrt((2*h)/g) #Tiempo máximo de caída
 
 
@@ -135,217 +136,201 @@ for i in range(0,len(datos_v_sc+1)):
     var = (datos_v_sc[i]  - cv2[i])**2
     varianza_sc =  varianza_sc + var    
 varianza_sc = varianza_sc/len(cv2)
-print(varianza_sc)
+print("Varianza en V para la servilleta cerrada:", varianza_sc)
 
 for i in range(0,len(datos_y_sc+1)):
     var = (datos_y_sc[i]  - cy2[i])**2
     varianza_sc_y =  varianza_sc_y + var    
 varianza_sc_y = varianza_sc_y/len(cv2)
-print(varianza_sc_y)
+print("Varianza en X para la servilleta cerrada:", varianza_sc_y)
+
+
 
 #Datos del experimento necesarios para calcular K
 
-tt = np.array(datos_se["t"])
-yy = np.array(abs(datos_se["y"])-2)
-vv = np.array(datos_se["v"])
-aa = np.array(datos_se["a"])
+Tiempo, Altura, Velocidad = [], [], []
+for i in range (0,11):
+    n = str(i+1)
+    Tiempo.append(np.array(datos_se["t{}".format(n)]))
+    Tiempo[i] = [x for x in Tiempo[i] if np.isnan(x) == False]
+    Altura.append(np.array(abs(2-datos_se["y{}".format(n)])))
+    Altura[i] = [x for x in Altura[i] if np.isnan(x) == False]
+    Velocidad.append(np.array(datos_se["v{}".format(n)]))
+    Velocidad[i] = [x for x in Velocidad[i] if np.isnan(x) == False]
+    
+#Hallando k
 
-datos_se_t = tt[:-2]
-datos_se_y = yy[:-2]
-datos_se_v = vv[:-2]
-datos_se_a = aa[:-2]
 
-#Definición de variables: Servilleta Extendida
-time2= 3
-taza_cambio = time2/len(datos_se_t)
-T = np.arange(0, time2, taza_cambio)
-V = np.zeros(len(T))
-X = np.zeros(len(T))
-a = np.zeros(len(T))
-ac = np.zeros(len(datos_se_t))
-X[-1] = 2
-a[0] ,ac[0], ac[2] = g, g, g #Usada para el bucle donde calculo k
-m = 0.0007
+K, T, V, X, a = [], [], [], [], []
+Resist = []
 
-#Estimación de k con los datos de tracker
-K = np.zeros(len(datos_se_t)-1)
-for i in range(2,len(datos_se_t)-1): #Empieza en 2 pq en el primer instante es indeterminado
-     ac[i] = (datos_se_v[i]-datos_se_v[i-1])/(datos_se_t[i]-datos_se_t[i-1])
-     K[i] = m*(g-ac[i])/(datos_se_v[i])
+for j in range(0,10):
+    K.append(np.zeros(len(Tiempo[j])))
+    time2= Tiempo[j][-1]
+    taza_cambio = time2/len(Tiempo[j])
+    T.append(np.arange(0, time2, taza_cambio))
+    V.append(np.zeros(len(T[j])))
+    X.append(np.zeros(len(T[j])))
+    a.append([g for i in range(len(T[j]))])
+    for i in range(2,len(Tiempo[j])):
+        Delta_vel = Velocidad[j][i]-Velocidad[j][i-1]
+        Delta_tiempo = Tiempo[j][i]-Tiempo[j][i-1]
+        a[j][i] = (Delta_vel)/(Delta_tiempo)
+        K[j][i] = m*(g-a[j][i])/Velocidad[j][i]
+    k = sum(K[j]/len(K[j]))
+    print("Modelo {} para una k de:".format(j+1), k)
+    
+    Resist.append(k)
+    for l in range(1,len(T[j])):
+        a[j][l] = g - ((k)/m)*V[j][l-1]
+        V[j][l] = V[j][l-1] + (a[j][l]*(T[j][l]-T[j][l-1]))
+        X[j][l] = (X[j][l-1] + V[j][l] * (T[j][l]-T[j][l-1]) + a[j][l-1]*((T[j][l] - T[j][l-1])**2)/2)
+    
+  
+    
+
      
-
-# =============================================================================
-# 
-   
-# #Modelo teórico con K definida
-# for j in range (2,len(datos_se_t)-1):
-#     V[i] = V[i-1] + a[i-1]*(T[i]-T[i-1])
-#     a[i] = g-((K[i]/m)*(V[i]))
-#     X[i] = (((X[i-1] + V[i-1] * (T[i]-T[i-1]) + a[i-1]*((T[i]-T[i-1])**2)/2)))
-# =============================================================================
-
-
-#Pruebas con K constante 
-k = sum(K)/len(K)
-print("k es igual a ", k)
-for b in range (1,len(datos_se_t)): 
-    a[b] = g - ((k/m)*V[b-1])
-    V[b] = V[b-1] + a[b-1]*(T[b]-T[b-1])
-    X[b] = (((X[b-1] + V[b-1] * (T[b] - T[b-1]) + a[b-1]*((T[b]-T[b-1])**2)/2)))
-
-      
-
-#Graficas teóricas
 plt.figure()
-plt.plot(T,V, "m-", linewidth = 2, markersize = 10)
+plt.plot(T[0], a[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 1")
+plt.plot(T[1], a[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 2")
+plt.plot(T[2], a[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 3")
+plt.plot(T[3], a[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 4")
+plt.plot(T[4], a[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 5")
+plt.plot(T[5], a[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 6")
+plt.plot(T[6], a[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
+plt.plot(T[7], a[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 8")
+plt.plot(T[8], a[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 9")
+plt.plot(T[9], a[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 10")
+plt.legend(loc = "best", bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
+plt.ylabel("Aceleración ($m/s^{2}$)", fontdict= font)
+plt.xlabel("Tiempo (s)", fontdict= font)
+plt.title("Servilleta Extendida", fontdict= font)
+plt.grid()
+plt.show()      
+
+plt.figure()
+
+plt.plot(T[0], V[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 1")
+plt.plot(T[1], V[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 2")
+plt.plot(T[2], V[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 3")
+plt.plot(T[3], V[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 4")
+plt.plot(T[4], V[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 5")
+plt.plot(T[5], V[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 6")
+plt.plot(T[6], V[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
+plt.plot(T[7], V[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 8")
+plt.plot(T[8], V[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 9")
+plt.plot(T[9], V[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 10")
+plt.legend(loc = "best", bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
 plt.ylabel("Velocidad (m/s)", fontdict= font)
-plt.xlabel("Tiempo(s)", fontdict= font)
+plt.xlabel("Tiempo (s)", fontdict= font)
+plt.title("Servilleta Extendida", fontdict= font)
+plt.grid()
+plt.show()
+
+
+plt.figure()
+plt.plot(T[0], 2-X[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 1")
+plt.plot(T[1], 2-X[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 2")
+plt.plot(T[2], 2-X[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 3")
+plt.plot(T[3], 2-X[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 4")
+plt.plot(T[4], 2-X[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 5")
+plt.plot(T[5], 2-X[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 6")
+plt.plot(T[6], 2-X[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
+plt.plot(T[7], 2-X[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 8")
+plt.plot(T[8], 2-X[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 9")
+plt.plot(T[9], 2-X[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 10")
+plt.legend(loc = "best", bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
+plt.ylabel("Altura (m/s)", fontdict= font)
+plt.xlabel("Tiempo (s)", fontdict= font)
+plt.title("Servilleta Extendida", fontdict= font)
+plt.grid()
+plt.show()
+
+
+
+
+
+plt.figure()
+plt.plot(Tiempo[0], Velocidad[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 1")
+plt.plot(Tiempo[1], Velocidad[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 2")
+plt.plot(Tiempo[2], Velocidad[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 3")
+plt.plot(Tiempo[3], Velocidad[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 4")
+plt.plot(Tiempo[4], Velocidad[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 5")
+plt.plot(Tiempo[5], Velocidad[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 6")
+plt.plot(Tiempo[6], Velocidad[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 7")
+plt.plot(Tiempo[7], Velocidad[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 8")
+plt.plot(Tiempo[8], Velocidad[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 9")
+plt.plot(Tiempo[9], Velocidad[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 10")
+plt.plot(Tiempo[10], Velocidad[10], "k-", linewidth = 2, markersize = 3, label = "Promedio")
+plt.legend(loc = "best",bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
+plt.ylabel("Velocidad (m/s)", fontdict= font)
+plt.xlabel("Tiempo (s)", fontdict= font)
 plt.title("Servilleta Extendida", fontdict= font)
 plt.grid()
 plt.show()
 
 plt.figure()
-plt.plot(T, 2-X, "m-", linewidth = 2, markersize=10)
-plt.ylabel("Distancia recorrida (m)", fontdict= font)
+plt.plot(Tiempo[0], Altura[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 1")
+plt.plot(Tiempo[1], Altura[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 2")
+plt.plot(Tiempo[2], Altura[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 3")
+plt.plot(Tiempo[3], Altura[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 4")
+plt.plot(Tiempo[4], Altura[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 5")
+plt.plot(Tiempo[5], Altura[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 6")
+plt.plot(Tiempo[6], Altura[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 7")
+plt.plot(Tiempo[7], Altura[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 8")
+plt.plot(Tiempo[8], Altura[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 9")
+plt.plot(Tiempo[9], Altura[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 10")
+plt.plot(Tiempo[10], Altura[10], "k-", linewidth = 2, markersize = 3, label = "Promedio")
+plt.legend(loc = "best",bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
+plt.ylabel("Altura (m/s)", fontdict= font)
 plt.xlabel("Tiempo (s)", fontdict= font)
 plt.title("Servilleta Extendida", fontdict= font)
 plt.grid()
 plt.show()
 
-#Datos experimento servilleta extendida
-tt = np.array(datos_se["t1"]); datos_se_t_1 = tt[:-16]
-yy = np.array(abs(2-datos_se["y1"])); datos_se_y_1 = yy[:-16]
-vv = np.array(datos_se["v1"]); datos_se_v_1 = vv[:-16]
 
-tt = np.array(datos_se["t2"]); datos_se_t_2 = tt[:-1]
-yy = np.array(abs(2-datos_se["y2"])); datos_se_y_2 = yy[:-1]
-vv = np.array(datos_se["v2"]); datos_se_v_2 = vv[:-1]
-
-tt = np.array(datos_se["t3"]); datos_se_t_3 = tt[:-16]
-yy = np.array(abs(2-datos_se["y3"])); datos_se_y_3 = yy[:-16]
-vv = np.array(datos_se["v3"]); datos_se_v_3 = vv[:-16]
-
-tt = np.array(datos_se["t4"]); datos_se_t_4 = tt
-yy = np.array(abs(2-datos_se["y4"])); datos_se_y_4 = yy
-vv = np.array(datos_se["v4"]); datos_se_v_4 = vv
-
-tt = np.array(datos_se["t5"]); datos_se_t_5 = tt[:-16]
-yy = np.array(abs(2-datos_se["y5"])); datos_se_y_5 = yy[:-16]
-vv = np.array(datos_se["v5"]); datos_se_v_5 = vv[:-16]
-
-tt = np.array(datos_se["t6"]); datos_se_t_6 = tt[:-19]
-yy = np.array(abs(2-datos_se["y6"])); datos_se_y_6 = yy[:-19]
-vv = np.array(datos_se["v6"]); datos_se_v_6 = vv[:-19]
-
-tt = np.array(datos_se["t7"]); datos_se_t_7 = tt[:-3]
-yy = np.array(abs(2-datos_se["y7"])); datos_se_y_7 = yy[:-3]
-vv = np.array(datos_se["v7"]); datos_se_v_7 = vv[:-3]
-
-tt = np.array(datos_se["t8"]); datos_se_t_8 = tt[:-21]
-yy = np.array(abs(2-datos_se["y8"])); datos_se_y_8 = yy[:-21]
-vv = np.array(datos_se["v8"]); datos_se_v_8 = vv[:-21]
-
-tt = np.array(datos_se["t9"]); datos_se_t_9 = tt[:-10]
-yy = np.array(abs(2-datos_se["y9"])); datos_se_y_9 = yy[:-10]
-vv = np.array(datos_se["v9"]); datos_se_v_9 = vv[:-10]
-
-tt = np.array(datos_se["t10"]); datos_se_t_10 = tt[:-3]
-yy = np.array(abs(2-datos_se["y10"])); datos_se_y_10 = yy[:-3]
-vv = np.array(datos_se["v10"]); datos_se_v_10 = vv[:-3]
-
-#Comparación de Datos
-plt.figure()
-plt.plot(datos_se_t_1,datos_se_y_1, "c-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_2,datos_se_y_2, "b-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_3,datos_se_y_3, "g-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_4,datos_se_y_4, "m-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_5,datos_se_y_5, "y-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_6,datos_se_y_6, "b-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_7,datos_se_y_7, "w-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_8,datos_se_y_8, "r-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_9,datos_se_y_9, "c-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_10,datos_se_y_10, "m-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t, abs(datos_se_y), "k-", linewidth = 2, markersize=5, label = "Promedio")
-plt.legend(loc="upper right")
-plt.grid()
-plt.ylabel("Altura (m)", fontdict= font)
-plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Comparación de datos - Experimento", fontdict= font)
-plt.show()
-
-
-plt.figure()
-plt.plot(datos_se_t_1,datos_se_v_1, "c-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_2,datos_se_v_2, "b-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_3,datos_se_v_3, "g-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_4,datos_se_v_4, "m-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_5,datos_se_v_5, "y-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_6,datos_se_v_6, "b-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_7,datos_se_v_7, "w-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_8,datos_se_v_8, "r-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_9,datos_se_v_9, "c-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t_10,datos_se_v_10, "m-", linewidth = 0.5, markersize=5)
-plt.plot(datos_se_t, datos_se_v, "k-", linewidth = 2, markersize=5, label = "Promedio")
-plt.legend(loc="upper right")
-plt.grid()
-plt.ylabel("Velocidad (m/s)", fontdict= font)
-plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Comparación de datos - Experimento", fontdict= font)
-plt.show()
-
-
-#Distancia vs Tiempo - Servilleta Extendida
-
-plt.figure()
-plt.plot(datos_se_t, abs(datos_se_y), "-", linewidth = 2, markersize=10, label= "Experimento")
-plt.plot( T, 2-X, "m-", linewidth = 2, markersize=10, label = "Simulación")
-plt.legend(loc="upper right")
-plt.grid()
-plt.ylabel("Altura (m)", fontdict= font)
-plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Servilleta Extendida - Comparación", fontdict= font)
-plt.show()
-
-#Velocidad vs Tiempo - Servilleta Extendida
-
-plt.figure()
-plt.plot(datos_se_t,datos_se_v, "c-", linewidth = 2, markersize=10, label= "Experimento")
-plt.plot(T, V, "k-", linewidth = 2, markersize=10, label = "Simulación")
-plt.legend(loc="upper right")
-plt.grid()
-plt.ylabel("Velocidad (v)", fontdict= font)
-plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Servilleta Extendida - Comparación", fontdict= font)
-plt.show()
 
 
 #Graficando K
-K1 = K.tolist()
-t1 = datos_se_t.tolist() 
-t1.pop(-1)
-plt.bar(t1,K1, width=0.02)
-plt.ylabel("Resistencia del aire (k)", fontdict= font)
+Modelos = [1,2,3,4,5,6,7,8,9,10]
+plt.bar(Modelos, Resist, width=0.8)
+plt.ylabel("Resistencia del aire", fontdict= font)
 plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Servilleta Extendida - Comparación", fontdict= font)
+plt.title("Resistencia del aire (k) para el modelo {}".format(j), fontdict= font)
 plt.show()
 
 
 #Varianza de la servilleta extendida
-
 varianza_se_v = 0
 varianza_se_X = 0
 
-for i in range(0, len(datos_se_v+1)):
-    var = (datos_se_v[i]-V[i])**2
-    varianza_se_v = varianza_se_v + var
-varianza_se_v = varianza_se_v/len(V)
-print(varianza_se_v)
+for j in range(0,10):
+    var = []
+    for i in range(0, len(Velocidad[j])):
+        var.append((Velocidad[j][i]-V[j][i]))
+        varianza= (Velocidad[j][i]-V[j][i])**2
+        varianza_se_v = varianza_se_v + varianza
+    plt.scatter(T[j], var)
+    plt.axhline(y = 0, linestyle = '--', color = 'black', lw=2)
+    plt.title('Residuos del modelo {}'.format(j+1), fontsize = 10, fontweight = "bold")
+    plt.xlabel('Tiempo')
+    plt.ylabel('Residuo')   
+    plt.show()
+    
+    varianza_se_v = varianza_se_v/len(V)
+    print("La varianza para el experimento {} en V es de".format(j+1), varianza_se_v)
 
-for i in range(0, len(datos_se_y+1)):
-    var = (datos_se_y[i]-X[i])**2
-    varianza_se_X = varianza_se_X + var
-varianza_se_X = varianza_se_X/len(V)
-print(varianza_se_X)
+for j in range(0, 10):
+    var = []
+    for i in range(0, len(Altura[j])):
+        
+        var.append(Altura[j][i]-X[j][i])
+        varianza = (Altura[j][i]-X[j][i])**2
+        varianza_se_X = varianza_se_X + varianza
+    # plt.scatter(T[j], var)
+    # plt.show()
+    varianza_se_X = varianza_se_X/len(V)
+    print("La varianza para el experimento {} en X es de".format(j+1), varianza_se_X)
 
 
 
