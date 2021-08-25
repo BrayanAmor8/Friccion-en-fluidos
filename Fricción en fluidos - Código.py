@@ -210,17 +210,17 @@ plt.show()
 
 plt.figure()
 
-plt.plot(T[0], V[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 1")
-plt.plot(T[1], V[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 2")
-plt.plot(T[2], V[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 3")
-plt.plot(T[3], V[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 4")
-plt.plot(T[4], V[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 5")
-plt.plot(T[5], V[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 6")
-plt.plot(T[6], V[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
-plt.plot(T[7], V[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 8")
-plt.plot(T[8], V[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 9")
-plt.plot(T[9], V[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 10")
-plt.legend(loc = "best", bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
+# plt.plot(T[0], V[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 1")
+# plt.plot(T[1], V[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 2")
+# plt.plot(T[2], V[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 3")
+# plt.plot(T[3], V[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 4")
+plt.plot(T[4], V[4], "y-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 5")
+plt.plot(T[5], V[5], "b-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 6")
+# plt.plot(T[6], V[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
+plt.plot(T[7], V[7], "c-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 8")
+plt.plot(T[8], V[8], "r-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 9")
+plt.plot(T[9], V[9], "m-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 10")
+plt.legend(loc = "best")
 plt.ylabel("Velocidad (m/s)", fontdict= font)
 plt.xlabel("Tiempo (s)", fontdict= font)
 plt.title("Servilleta Extendida", fontdict= font)
@@ -251,16 +251,22 @@ plt.show()
 
 
 plt.figure()
-plt.plot(Tiempo[0], Velocidad[0], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 1")
-plt.plot(Tiempo[1], Velocidad[1], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 2")
-plt.plot(Tiempo[2], Velocidad[2], "g.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 3")
-plt.plot(Tiempo[3], Velocidad[3], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 4")
-plt.plot(Tiempo[4], Velocidad[4], "y.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 5")
-plt.plot(Tiempo[5], Velocidad[5], "b.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 6")
-plt.plot(Tiempo[6], Velocidad[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 7")
-plt.plot(Tiempo[7], Velocidad[7], "c.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 8")
-plt.plot(Tiempo[8], Velocidad[8], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 9")
-plt.plot(Tiempo[9], Velocidad[9], "m.-", linewidth = 1, markersize=3, alpha=0.5, label = "Exp. 10")
+plt.plot(Tiempo[0], Velocidad[0], "c-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 1")
+plt.plot(Tiempo[1], Velocidad[1], "b-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 2")
+plt.plot(Tiempo[2], Velocidad[2], "g-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 3")
+plt.plot(Tiempo[3], Velocidad[3], "m-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 4")
+plt.plot(Tiempo[4], Velocidad[4], "y-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 5")
+plt.plot(Tiempo[5], Velocidad[5], "b-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 6")
+plt.plot(Tiempo[6], Velocidad[6], "r-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 7")
+plt.plot(Tiempo[7], Velocidad[7], "c-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 8")
+plt.plot(Tiempo[8], Velocidad[8], "r-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 9")
+plt.plot(Tiempo[9], Velocidad[9], "m-", linewidth = 1, markersize=3, alpha=0.3, label = "Exp. 10")
+plt.plot(T[4], V[4], "y-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 5")
+plt.plot(T[5], V[5], "b-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 6")
+# plt.plot(T[6], V[6], "r.-", linewidth = 1, markersize=3, alpha=0.5, label = "Modelo 7")
+plt.plot(T[7], V[7], "c-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 8")
+plt.plot(T[8], V[8], "r-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 9")
+plt.plot(T[9], V[9], "m-", linewidth = 2, markersize=3, alpha=1, label = "Modelo 10")
 plt.plot(Tiempo[10], Velocidad[10], "k-", linewidth = 2, markersize = 3, label = "Promedio")
 plt.legend(loc = "best",bbox_to_anchor=(0.8, 0.5, 0.5, 0.5))
 plt.ylabel("Velocidad (m/s)", fontdict= font)
@@ -292,33 +298,38 @@ plt.show()
 
 
 #Graficando K
-Modelos = [1,2,3,4,5,6,7,8,9,10]
+Modelos = ["1","2","3","4","5","6","7","8","9","10"]
 plt.bar(Modelos, Resist, width=0.8)
 plt.ylabel("Resistencia del aire", fontdict= font)
-plt.xlabel("Tiempo (s)", fontdict= font)
-plt.title("Resistencia del aire (k) para el modelo {}".format(j), fontdict= font)
+plt.xlabel("Experimento", fontdict= font)
+plt.title("Estimación de k", fontdict= font)
 plt.show()
 
 
 #Varianza de la servilleta extendida
-varianza_se_v = 0
-varianza_se_X = 0
 
-for j in range(0,10):
+for j in range(0,10):    
     var = []
+    varianza_se_v = 0   
+    varianza_se_X = 0
+
     for i in range(0, len(Velocidad[j])):
-        var.append((Velocidad[j][i]-V[j][i]))
+        var.append(Velocidad[j][i]-V[j][i])
         varianza= (Velocidad[j][i]-V[j][i])**2
         varianza_se_v = varianza_se_v + varianza
-    plt.scatter(T[j], var)
-    plt.axhline(y = 0, linestyle = '--', color = 'black', lw=2)
-    plt.title('Residuos del modelo {}'.format(j+1), fontsize = 10, fontweight = "bold")
-    plt.xlabel('Tiempo')
-    plt.ylabel('Residuo')   
-    plt.show()
+   
     
-    varianza_se_v = varianza_se_v/len(V)
+    varianza_se_v = varianza_se_v
     print("La varianza para el experimento {} en V es de".format(j+1), varianza_se_v)
+
+    plt.scatter(T[j], var, alpha=1)
+    plt.axhline(y = 0, linestyle = '--', color = 'black', lw=2)
+    plt.title("Análisis de residuos del modelo {}".format(j+1), fontweight = "bold", fontdict= font)
+    plt.xlabel('Tiempo(s)', fontdict= font)
+    plt.ylabel('Residuo', fontdict= font)   
+    plt.show()
+
+
 
 for j in range(0, 10):
     var = []
