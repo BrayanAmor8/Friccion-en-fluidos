@@ -13,7 +13,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Importando datos de tracker
+
+#Datos servilleta arrugada del documento "Servilleta Comprimida, Datos (t,y,v,a).xlsx"
 datos_sc = pd.read_excel(r"C:\Users\braya\Documents\Brayan\Introducción a la física\Código - Fricción en fluidos\Servilleta Comprimida, Datos (t,y,v,a).xlsx", usecols=("F:H"), skiprows = 3, nrows = 19)
+#Datos servilleta extendida del documento "Aceleraciones servilleta extendida.xlsx"
 datos_se = pd.read_excel(r"C:\Users\braya\Documents\Brayan\Introducción a la física\Código - Fricción en fluidos\Aceleraciones servilleta extendida.xlsx", usecols=("A:BB"), skiprows = 8)
  
 #Definición de variables para la servilleta arrugada
